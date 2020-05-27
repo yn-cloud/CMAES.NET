@@ -42,7 +42,11 @@ namespace CMAES.NET
 
             double minAlpha = Math.Min(1 + c1 / cmu, Math.Min(1 + (2 * muEffMinus) / (muEff + 2), (1 - c1 - cmu) / (dim * cmu)));
 
+            double positiveSum = weightsPrime.Where(x => x > 0).Sum();
+            double negativeSum = Math.Abs(weightsPrime.Where(x => x < 0).Sum());
 
+            Vector<double> weights = Vector<double>.Build.Dense(weightsPrime.Count);
+            weightsPrime.CopyTo(weights);
         }
     }
 }
