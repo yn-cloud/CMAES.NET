@@ -5,6 +5,8 @@ using System;
 using System.Numerics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace CMAES.NET
 {
@@ -136,7 +138,7 @@ namespace CMAES.NET
             this.nMaxResampling = nMaxResampling;
 
             this.g = 0;
-            this.rng = new MathNet.Numerics.Random.Xorshift(seed);
+            this.rng = new Xorshift(seed);
 
             this.epsilon = 1e-8;
         }
@@ -158,20 +160,82 @@ namespace CMAES.NET
                 if (IsFeasible(x))
                     return x;
             }
-            return SampleSolution();
+            Vector<double> xNew = SampleSolution();
+            xNew = RepairInfeasibleParams(xNew);
+            return xNew;
         }
 
-        private bool IsFeasible(Vector<double> x)
+        public void Tell(List<Tuple<Vector<double>, double>> solutions)
+        {
+            if (solutions.Count != PopulationSize)
+            {
+                throw new ArgumentException("Must tell popsize-length solutions.");
+            }
+
+            this.g += 1;
+            Tuple<Vector<double>, double>[] sortedSolutions = solutions.OrderBy(x => x.Item2).ToArray();
+
+            Matrix<double> Btmp = Matrix<double>.Build.Dense(B.RowCount, B.ColumnCount);
+            Vector<double> Dtmp = Vector<double>.Build.Dense(D.Count);
+            if (this.B == null || this.D == null)
+            {
+                C = (C + C.Transpose()) / 2;
+                Complex k = new Complex(1, 3);
+                MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evdC = C.Evd();
+                Vector<double> tmeigenValueVector = Vector<double>.Build.Dense(evdC.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
+                Dtmp = tmeigenValueVector;
+                Btmp = evdC.EigenVectors;
+            }
+            else
+            {
+                B.CopyTo(Btmp);
+                D.CopyTo(Dtmp);
+            }
+            B = null;
+            D = null;
+
+            Matrix<double> x_k = Matrix<double>.Build.Dense(sortedSolutions.Length, Dim);
+            Matrix<double> y_k = Matrix<double>.Build.Dense(sortedSolutions.Length, Dim);
+            for (int i = 0; i < sortedSolutions.Length; i++)
+            {
+                x_k.SetRow(i, sortedSolutions[i].Item1);
+                y_k.SetRow(i, x_k.Row(i).PointwiseDivide(mean) / sigma);
+            }
+            Vector<double>[] kk = y_k.EnumerateRows().Skip(mu).ToArray();
+            Matrix<double> kk2 = Matrix<double>.Build.Dense(Dim, kk.Length);
+            for (int i = 0; i < kk.Length; i++)
+            {
+                kk2.SetColumn(i, kk[i]);
+            }
+            Vector<double> subWeights = Vector<double>.Build.Dense(weights.Skip(mu).ToArray());
+
+        }
+
+        private Vector<double> RepairInfeasibleParams(Vector<double> param)
+        {
+            if (bounds == null)
+            {
+                return param;
+            }
+            Vector<double> newParam = param.PointwiseMaximum(bounds.Column(0));
+            newParam = newParam.PointwiseMinimum(bounds.Column(1));
+            return newParam;
+        }
+
+        private bool IsFeasible(Vector<double> param)
         {
             if (bounds == null)
             {
                 return true;
             }
-        return np.all(param >= self._bounds[:, 0]) and np.all(
-            param <= self._bounds[:, 1]
-        )
-
-            throw new NotImplementedException();
+            bool isCorrectLower = true;
+            bool isCorrectUpper = true;
+            for (int i = 0; i < param.Count; i++)
+            {
+                isCorrectLower &= param[i] >= bounds[i, 0];
+                isCorrectUpper &= param[i] <= bounds[i, 1];
+            }
+            return isCorrectLower & isCorrectUpper;
         }
 
         private Vector<double> SampleSolution()
