@@ -13,7 +13,9 @@ namespace CMAES.NET.Tests
         [TestMethod()]
         public void CMATest()
         {
-            CMA cma = new CMA(Vector<double>.Build.Dense(3), 1e-3);
+            CMA cma = new CMA(Vector<double>.Build.Dense(2), 1.3);
+
+            Console.WriteLine("dd");
         }
 
     }
