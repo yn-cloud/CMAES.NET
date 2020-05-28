@@ -2,6 +2,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Random;
 using System;
+using System.Numerics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
@@ -24,7 +25,7 @@ namespace CMAES.NET
         private Vector<double> mean;
         private Matrix<double> C;
         private double sigma;
-        private Matrix<double> D;
+        private Vector<double> D;
         private Matrix<double> B;
         private Matrix<double> bounds;
         private int nMaxResampling;
@@ -35,6 +36,7 @@ namespace CMAES.NET
         public int Dim { get; private set; }
         public int PopulationSize { get; private set; }
         public int Generation { get; set; }
+        public object Dpow { get; private set; }
 
         public CMA(Vector<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 0)
         {
@@ -51,7 +53,7 @@ namespace CMAES.NET
 
             int populationSize = 4 + (int)Math.Floor(3 * Math.Log(nDim));  // # (eq. 48)
 
-            int mu = populationSize;
+            int mu = populationSize / 2;
 
             Vector<double> weightsPrime = Vector<double>.Build.Dense(populationSize);
             for (int i = 0; i < populationSize; i++)
@@ -148,23 +150,59 @@ namespace CMAES.NET
             this.bounds = bounds;
         }
 
+        public Vector<double> Ask()
+        {
+            for (int i = 0; i < nMaxResampling; i++)
+            {
+                Vector<double> x = SampleSolution();
+                if (IsFeasible(x))
+                    return x;
+            }
+            return SampleSolution();
+        }
+
+        private bool IsFeasible(Vector<double> x)
+        {
+            if (bounds == null)
+            {
+                return true;
+            }
+        return np.all(param >= self._bounds[:, 0]) and np.all(
+            param <= self._bounds[:, 1]
+        )
+
+            throw new NotImplementedException();
+        }
+
         private Vector<double> SampleSolution()
         {
             if (B == null || D == null)
             {
                 C = (C + C.Transpose()) / 2;
+                Complex k = new Complex(1, 3);
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evdC = C.Evd();
-                Matrix<double> tmpD = evdC.D.PointwiseSqrt();
+                Vector<double> tmpD = Vector<double>.Build.Dense(evdC.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
                 tmpD += epsilon;
                 this.D = tmpD;
                 this.B = evdC.EigenVectors;
-                Vector<double> BD2 = B * D.PointwiseSqrt().Diagonal();
+                var Dpow2diagonal = Matrix<double>.Build.DenseDiagonal(D.Count, 1);
+                Vector<double> Dpow2 = D.PointwisePower(2);
+                for (int i = 0; i < Dpow2diagonal.RowCount; i++)
+                {
+                    Dpow2diagonal[i, i] = Dpow2[i];
+                }
+                Matrix<double> BD2 = B * Dpow2diagonal;
                 C = BD2 * B.Transpose();
             }
 
             Vector<double> z = Vector<double>.Build.Dense(Dim, Normal.Sample(rng, 0.0, 1.0));
-            Matrix<double> y = B * D.Diagonal().ToColumnMatrix() * z.ToColumnMatrix();
-            var x = mean + sigma * y;
+            Matrix<double> Ddiagonal = Matrix<double>.Build.DenseDiagonal(D.Count, 1);
+            for (int i = 0; i < Ddiagonal.RowCount; i++)
+            {
+                Ddiagonal[i, i] = D[i];
+            }
+            Matrix<double> y = B * Ddiagonal * z.ToColumnMatrix();
+            var x = mean + sigma * y.Column(0);
             return x;
         }
     }
