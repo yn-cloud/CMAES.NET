@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Random;
 using System;
 using System.Linq;
@@ -157,7 +158,14 @@ namespace CMAES.NET
                 tmpD += epsilon;
                 this.D = tmpD;
                 this.B = evdC.EigenVectors;
+                Vector<double> BD2 = B * D.PointwiseSqrt().Diagonal();
+                C = BD2 * B.Transpose();
             }
+
+            Vector<double> z = Vector<double>.Build.Dense(Dim, Normal.Sample(rng, 0.0, 1.0));
+            Matrix<double> y = B * D.Diagonal().ToColumnMatrix() * z.ToColumnMatrix();
+            var x = mean + sigma * y;
+            return x;
         }
     }
 }
