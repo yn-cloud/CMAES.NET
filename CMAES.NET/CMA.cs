@@ -152,6 +152,11 @@ namespace CMAES.NET
             if (B == null || D == null)
             {
                 C = (C + C.Transpose()) / 2;
+                MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evdC = C.Evd();
+                Matrix<double> tmpD = evdC.D.PointwiseSqrt();
+                tmpD += epsilon;
+                this.D = tmpD;
+                this.B = evdC.EigenVectors;
             }
         }
     }
