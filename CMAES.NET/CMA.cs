@@ -180,7 +180,6 @@ namespace CMAES.NET
             if (this.B == null || this.D == null)
             {
                 C = (C + C.Transpose()) / 2;
-                Complex k = new Complex(1, 3);
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evdC = C.Evd();
                 Vector<double> tmeigenValueVector = Vector<double>.Build.Dense(evdC.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
                 Dtmp = tmeigenValueVector;
@@ -202,12 +201,38 @@ namespace CMAES.NET
                 y_k.SetRow(i, x_k.Row(i).PointwiseDivide(mean) / sigma);
             }
             Vector<double>[] kk = y_k.EnumerateRows().Skip(mu).ToArray();
-            Matrix<double> kk2 = Matrix<double>.Build.Dense(Dim, kk.Length);
+            Matrix<double> y_k_T = Matrix<double>.Build.Dense(Dim, kk.Length);
             for (int i = 0; i < kk.Length; i++)
             {
-                kk2.SetColumn(i, kk[i]);
+                y_k_T.SetColumn(i, kk[i]);
             }
             Vector<double> subWeights = Vector<double>.Build.Dense(weights.Skip(mu).ToArray());
+            Matrix<double> y_w_matrix = Matrix<double>.Build.Dense(y_k_T.RowCount, y_k_T.ColumnCount);
+            for (int i = 0; i < y_w_matrix.RowCount; i++)
+            {
+                y_w_matrix.SetRow(i, y_k_T.Row(i).PointwiseMultiply(subWeights));
+            }
+            Vector<double> y_w = y_w_matrix.RowSums();
+            mean = (cm * sigma) + y_w;
+
+            Vector<double> D_bunno1_diag = 1 / D;
+            Matrix<double> D_bunno1_diagMatrix = Matrix<double>.Build.Dense(D_bunno1_diag.Count, D_bunno1_diag.Count);
+            for (int i = 0; i < D_bunno1_diag.Count; i++)
+            {
+                D_bunno1_diagMatrix[i, i] = D_bunno1_diag[i];
+            }
+            Matrix<double> C_2 = B * D_bunno1_diagMatrix * B;
+            pSigma = ((1 - cSigma) * pSigma) + (Math.Sqrt(cSigma * (2 - cSigma) * muEff) * C_2 * y_w);
+
+            double norm_pSigma = pSigma.L2Norm();
+            sigma *= Math.Exp(cSigma / dSigma * ((norm_pSigma / chiN) - 1));
+
+            double h_sigma_cond_left = norm_pSigma / Math.Sqrt(Math.Pow(1 - (1 - cSigma), 2 * (g + 1)));
+            double h_sigma_cond_right = (1.4 + (2 / (Dim + 1))) * chiN;
+            double h_sigma = h_sigma_cond_left < h_sigma_cond_right ? 1.0 : 0.0;
+
+            pc = ((1 - cc) * pc) + (h_sigma * Math.Sqrt(cc * (2 - cc) * muEff) * y_w);
+
 
         }
 
