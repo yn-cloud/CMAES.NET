@@ -29,7 +29,7 @@ namespace CMAES.NETExample
 
         private static double TestFunctions(Vector<double> x)
         {
-            return Math.Pow(x[0] - 3, 2) + Math.Pow(10 * (x[1] + 2), 2);
+            return Math.Pow(x[0], 2) + Math.Pow(x[1], 2);
         }
     }
 }

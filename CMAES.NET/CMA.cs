@@ -182,9 +182,8 @@ namespace CMAES.NET
             {
                 _C = (_C + _C.Transpose()) / 2;
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evd_C = _C.Evd();
-                Vector<double> tmeigenValueVector = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
-                D = tmeigenValueVector;
                 B = evd_C.EigenVectors;
+                D = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
             }
             else
             {
@@ -241,7 +240,7 @@ namespace CMAES.NET
             {
                 if (_weights[i] < 0)
                 {
-                    w_io[i] = (Dim / w_iee[i]) + _epsilon;
+                    w_io[i] *= (Dim / w_iee[i]) + _epsilon;
                 }
             }
 
@@ -293,14 +292,13 @@ namespace CMAES.NET
             {
                 _C = (_C + _C.Transpose()) / 2;
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evd_C = _C.Evd();
-
                 Matrix<double> B = evd_C.EigenVectors;
                 Vector<double> D = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
                 D += _epsilon;
                 _B = B;
                 _D = D;
-                Matrix<double> D2diagonal = Matrix<double>.Build.DenseDiagonal(_D.Count, 1);
-                Vector<double> Dpow2 = _D.PointwisePower(2);
+                Matrix<double> D2diagonal = Matrix<double>.Build.DenseDiagonal(D.Count, 1);
+                Vector<double> Dpow2 = D.PointwisePower(2);
                 for (int i = 0; i < D2diagonal.RowCount; i++)
                 {
                     D2diagonal[i, i] = Dpow2[i];
@@ -320,7 +318,7 @@ namespace CMAES.NET
                 Ddiagonal[i, i] = _D[i];
             }
             Matrix<double> y = _B * Ddiagonal * z.ToColumnMatrix();
-            Vector<double> x = _mean + _sigma * y.Column(0);
+            Vector<double> x = _mean + (_sigma * y.Column(0));
             return x;
         }
     }
