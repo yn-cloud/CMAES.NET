@@ -198,7 +198,7 @@ namespace CMAES.NET
             Matrix<double> y_k = Matrix<double>.Build.Dense(sortedSolutions.Length, Dim);
             for (int i = 0; i < sortedSolutions.Length; i++)
             {
-                y_k.SetRow(i, x_k.Row(i).PointwiseDivide(_mean) / _sigma);
+                y_k.SetRow(i, (x_k.Row(i) - _mean) / _sigma);
             }
 
             // Selection and recombination
@@ -320,7 +320,7 @@ namespace CMAES.NET
                 Ddiagonal[i, i] = _D[i];
             }
             Matrix<double> y = _B * Ddiagonal * z.ToColumnMatrix();
-            var x = _mean + _sigma * y.Column(0);
+            Vector<double> x = _mean + _sigma * y.Column(0);
             return x;
         }
     }
