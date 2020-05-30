@@ -216,13 +216,13 @@ namespace CMAES.NET
             Vector<double> y_w = y_w_matrix.RowSums();
             mean = (cm * sigma) + y_w;
 
-            Vector<double> D_bunno1_diag = 1 / D;
+            Vector<double> D_bunno1_diag = 1 / Dtmp;
             Matrix<double> D_bunno1_diagMatrix = Matrix<double>.Build.Dense(D_bunno1_diag.Count, D_bunno1_diag.Count);
             for (int i = 0; i < D_bunno1_diag.Count; i++)
             {
                 D_bunno1_diagMatrix[i, i] = D_bunno1_diag[i];
             }
-            Matrix<double> C_2 = B * D_bunno1_diagMatrix * B;
+            Matrix<double> C_2 = Btmp * D_bunno1_diagMatrix * Btmp;
             pSigma = ((1 - cSigma) * pSigma) + (Math.Sqrt(cSigma * (2 - cSigma) * muEff) * C_2 * y_w);
 
             double norm_pSigma = pSigma.L2Norm();
