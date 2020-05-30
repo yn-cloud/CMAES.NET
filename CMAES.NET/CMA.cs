@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CMAES.NET
 {
@@ -233,7 +234,29 @@ namespace CMAES.NET
 
             pc = ((1 - cc) * pc) + (h_sigma * Math.Sqrt(cc * (2 - cc) * muEff) * y_w);
 
+            Vector<double> w_io = Vector<double>.Build.Dense(weights.Count, 1);
+            Vector<double> w_iee = (C_2 * y_k.Transpose()).ColumnNorms(2).PointwisePower(2);
+            for (int i = 0; i < weights.Count; i++)
+            {
+                if (weights[i] < 0)
+                {
+                    w_io[i] = (Dim / w_iee[i]) + epsilon;
+                }
+            }
 
+            double delta_h_sigma = (1 - h_sigma) * cc * (2 - cc);
+            if (!(delta_h_sigma <= 1))
+            {
+                throw new Exception("invalid value of delta_h_sigma");
+            }
+
+            Matrix<double> rank_one = pc.OuterProduct(pc);
+            Matrix<double> rank_mu = Matrix<double>.Build.Dense(y_k.ColumnCount, y_k.ColumnCount, 0);
+            for (int i = 0; i < w_io.Count; i++)
+            {
+                rank_mu += w_io[i] * y_k.Row(i).OuterProduct(y_k.Row(i));
+            }
+            C = ((1 + (c1 * delta_h_sigma) - c1 - (cmu * weights.Sum())) * C) + (c1 * rank_one) + (cmu * rank_mu);
         }
 
         private Vector<double> RepairInfeasibleParams(Vector<double> param)
