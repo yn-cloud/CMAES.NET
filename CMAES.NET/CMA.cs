@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CMAES.NET
+namespace CMAESnet
 {
     public class CMA
     {

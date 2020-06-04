@@ -1,10 +1,10 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System;
-using CMAES.NET;
+using CMAESnet;
 using System.Collections.Generic;
 using MathNet.Numerics;
 
-namespace CMAES.NETExample
+namespace CMAESnet.Example
 {
     class Program
     {
