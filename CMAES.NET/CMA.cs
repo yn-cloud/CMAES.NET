@@ -4,10 +4,7 @@ using MathNet.Numerics.Random;
 using System;
 using System.Numerics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.ComponentModel;
 
 namespace CMAESnet
 {
@@ -193,10 +190,6 @@ namespace CMAESnet
             _B = null;
             _D = null;
 
-            Console.WriteLine(B);
-            Console.WriteLine(D);
-
-
             Matrix<double> x_k = Matrix<double>.Build.DenseOfRowVectors(sortedSolutions.Select(x => x.Item1));
             Matrix<double> y_k = Matrix<double>.Build.Dense(sortedSolutions.Length, Dim);
             for (int i = 0; i < sortedSolutions.Length; i++)
@@ -218,7 +211,7 @@ namespace CMAESnet
                 y_w_matrix.SetRow(i, y_k_T.Row(i).PointwiseMultiply(subWeights));
             }
             Vector<double> y_w = y_w_matrix.RowSums();
-            _mean = (_cm * _sigma) + y_w;
+            _mean += _cm * _sigma * y_w;
 
             Vector<double> D_bunno1_diag = 1 / D;
             Matrix<double> D_bunno1_diagMatrix = Matrix<double>.Build.Dense(D_bunno1_diag.Count, D_bunno1_diag.Count);
@@ -232,7 +225,7 @@ namespace CMAESnet
             double norm_pSigma = _p_sigma.L2Norm();
             _sigma *= Math.Exp(_c_sigma / _d_sigma * ((norm_pSigma / _chi_n) - 1));
 
-            double h_sigma_cond_left = norm_pSigma / Math.Sqrt(1 - Math.Pow((1 - _c_sigma), 2 * (Generation + 1)));
+            double h_sigma_cond_left = norm_pSigma / Math.Sqrt(1 - Math.Pow(1 - _c_sigma, 2 * (Generation + 1)));
             double h_sigma_cond_right = (1.4 + (2 / (double)(Dim + 1))) * _chi_n;
             double h_sigma = h_sigma_cond_left < h_sigma_cond_right ? 1.0 : 0.0;
 
