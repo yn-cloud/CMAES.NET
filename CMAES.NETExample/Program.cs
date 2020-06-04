@@ -1,8 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System;
-using CMAESnet;
 using System.Collections.Generic;
-using MathNet.Numerics;
 
 namespace CMAESnet.Example
 {
@@ -10,7 +8,7 @@ namespace CMAESnet.Example
     {
         static void Main(string[] args)
         {
-            var cma_es = new CMA(Vector<double>.Build.Dense(2, 0), 1.3);
+            CMA cma_es = new CMA(Vector<double>.Build.Dense(2, 0), 1.3);
 
             for (int generation = 0; generation < 50; generation++)
             {
@@ -29,7 +27,7 @@ namespace CMAESnet.Example
 
         private static double TestFunctions(Vector<double> x)
         {
-            return Math.Pow(x[0], 2) + Math.Pow(x[1], 2);
+            return Math.Pow(x[0] - 3, 2) + Math.Pow(10 * (x[1] + 2), 2);
         }
     }
 }

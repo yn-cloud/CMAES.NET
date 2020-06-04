@@ -60,7 +60,7 @@ namespace CMAESnet
             Vector<double> weightsPrime = Vector<double>.Build.Dense(populationSize);
             for (int i = 0; i < populationSize; i++)
             {
-                weightsPrime[i] = Math.Log((populationSize + 1) / 2) - Math.Log(i + 1);
+                weightsPrime[i] = Math.Log((populationSize + 1) / (double)2) - Math.Log(i + 1);
             }
 
             Vector<double> weightsPrimeMuEff = Vector<double>.Build.Dense(weightsPrime.Take(mu).ToArray());
@@ -228,8 +228,8 @@ namespace CMAESnet
             double norm_pSigma = _p_sigma.L2Norm();
             _sigma *= Math.Exp(_c_sigma / _d_sigma * ((norm_pSigma / _chi_n) - 1));
 
-            double h_sigma_cond_left = norm_pSigma / Math.Sqrt(Math.Pow(1 - (1 - _c_sigma), 2 * (Generation + 1)));
-            double h_sigma_cond_right = (1.4 + (2 / (Dim + 1))) * _chi_n;
+            double h_sigma_cond_left = norm_pSigma / Math.Sqrt(1 - Math.Pow((1 - _c_sigma), 2 * (Generation + 1)));
+            double h_sigma_cond_right = (1.4 + (2 / (double)(Dim + 1))) * _chi_n;
             double h_sigma = h_sigma_cond_left < h_sigma_cond_right ? 1.0 : 0.0;
 
             _pc = ((1 - _cc) * _pc) + (h_sigma * Math.Sqrt(_cc * (2 - _cc) * _mu_eff) * y_w);
@@ -238,11 +238,16 @@ namespace CMAESnet
             Vector<double> w_iee = (C_2 * y_k.Transpose()).ColumnNorms(2).PointwisePower(2);
             for (int i = 0; i < _weights.Count; i++)
             {
+                if (_weights[i] >= 0)
+                {
+                    w_io[i] = _weights[i] * 1;
+                }
                 if (_weights[i] < 0)
                 {
-                    w_io[i] *= (Dim / w_iee[i]) + _epsilon;
+                    w_io[i] = _weights[i] * Dim / (w_iee[i] + _epsilon);
                 }
             }
+
 
             double delta_h_sigma = (1 - h_sigma) * _cc * (2 - _cc);
             if (!(delta_h_sigma <= 1))
