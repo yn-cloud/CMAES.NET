@@ -193,6 +193,10 @@ namespace CMAESnet
             _B = null;
             _D = null;
 
+            Console.WriteLine(B);
+            Console.WriteLine(D);
+
+
             Matrix<double> x_k = Matrix<double>.Build.DenseOfRowVectors(sortedSolutions.Select(x => x.Item1));
             Matrix<double> y_k = Matrix<double>.Build.Dense(sortedSolutions.Length, Dim);
             for (int i = 0; i < sortedSolutions.Length; i++)
@@ -315,7 +319,7 @@ namespace CMAESnet
             Vector<double> z = Vector<double>.Build.Dense(Dim);
             for (int i = 0; i < z.Count; i++)
             {
-                z[i] = Normal.Sample(_rng, 0, 1);
+                z[i] = 0;// Normal.Sample(_rng, 0, 1);
             }
             Matrix<double> Ddiagonal = Matrix<double>.Build.DenseDiagonal(_D.Count, 1);
             for (int i = 0; i < Ddiagonal.RowCount; i++)
