@@ -44,13 +44,13 @@ namespace CMAESnet
                 throw new ArgumentOutOfRangeException("sigma must be non-zero positive value");
             }
 
-            Dim = mean.Count;
-            if (!(Dim > 1))
+            int nDim = mean.Count;
+            if (!(nDim > 1))
             {
                 throw new ArgumentOutOfRangeException("The dimension of mean must be larger than 1");
             }
 
-            int populationSize = 4 + (int)Math.Floor(3 * Math.Log(Dim));  // # (eq. 48)
+            int populationSize = 4 + (int)Math.Floor(3 * Math.Log(nDim));  // # (eq. 48)
 
             int mu = populationSize / 2;
 
@@ -66,8 +66,8 @@ namespace CMAESnet
             double muEffMinus = Math.Pow(weightsPrimeMuEffMinus.Sum(), 2) / Math.Pow(weightsPrimeMuEffMinus.L2Norm(), 2);
 
             int alphacCov = 2;
-            double c1 = alphacCov / (Math.Pow(Dim + 1.3, 2) + mu_eff);
-            double cmu = Math.Min(1 - c1, alphacCov * (mu_eff - 2 + (1 / mu_eff)) / (Math.Pow(Dim + 2, 2) + (alphacCov * mu_eff / 2)));
+            double c1 = alphacCov / (Math.Pow(nDim + 1.3, 2) + mu_eff);
+            double cmu = Math.Min(1 - c1, alphacCov * (mu_eff - 2 + (1 / mu_eff)) / (Math.Pow(nDim + 2, 2) + (alphacCov * mu_eff / 2)));
             if (!(c1 <= 1 - cmu))
             {
                 throw new Exception("invalid learning rate for the rank-one update");
@@ -77,7 +77,7 @@ namespace CMAESnet
                 throw new Exception("invalid learning rate for the rank-μ update");
             }
 
-            double minAlpha = Math.Min(1 + (c1 / cmu), Math.Min(1 + (2 * muEffMinus / (mu_eff + 2)), (1 - c1 - cmu) / (Dim * cmu)));
+            double minAlpha = Math.Min(1 + (c1 / cmu), Math.Min(1 + (2 * muEffMinus / (mu_eff + 2)), (1 - c1 - cmu) / (nDim * cmu)));
 
             double positiveSum = weightsPrime.Where(x => x > 0).Sum();
             double negativeSum = Math.Abs(weightsPrime.Where(x => x < 0).Sum());
@@ -91,20 +91,20 @@ namespace CMAESnet
             }
             int cm = 1;
 
-            double c_sigma = (mu_eff + 2) / (Dim + mu_eff + 5);
-            double d_sigma = 1 + (2 * Math.Max(0, Math.Sqrt((mu_eff - 1) / (Dim + 1)) - 1)) + c_sigma;
+            double c_sigma = (mu_eff + 2) / (nDim + mu_eff + 5);
+            double d_sigma = 1 + (2 * Math.Max(0, Math.Sqrt((mu_eff - 1) / (nDim + 1)) - 1)) + c_sigma;
             if (!(c_sigma < 1))
             {
                 throw new Exception("invalid learning rate for cumulation for the step-size control");
             }
 
-            double cc = (4 + (mu_eff / Dim)) / (Dim + 4 + (2 * mu_eff / Dim));
+            double cc = (4 + (mu_eff / nDim)) / (nDim + 4 + (2 * mu_eff / nDim));
             if (!(cc <= 1))
             {
                 throw new Exception("invalid learning rate for cumulation for the rank-one update");
             }
 
-            Dim = Dim;
+            Dim = nDim;
             PopulationSize = populationSize;
             _mu = mu;
             _mu_eff = mu_eff;
