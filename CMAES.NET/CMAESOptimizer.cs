@@ -1,8 +1,8 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
+using MathNet.Numerics.LinearAlgebra;
 
 namespace CMAESnet
 {
@@ -17,25 +17,27 @@ namespace CMAESnet
         public Vector<double> ResultVector { get; private set; }
         public double ResultValue { get; private set; }
 
-        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initnial, double sigma)
+        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initnial, double sigma, int randSeed = 0)
         {
             this.function = function;
             maxIteration = initnial.Count * 200;
             tolX = 1e-4;
             tolFun = 1e-4;
 
-            cma = new CMA(initnial, sigma);
+            cma = new CMA(initnial, sigma, seed: randSeed);
+
+            ResultValue = double.MaxValue;
         }
 
         public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initial, double sigma, IList<double> lowerBounds, IList<double> upperBounds)
         {
             if (initial.Count != lowerBounds.Count)
             {
-                throw new ArgumentException("length ouf lowerBounds must be equal to that of initial.");
+                throw new ArgumentException("length of lowerBounds must be equal to that of initial.");
             }
             if (initial.Count != upperBounds.Count)
             {
-                throw new ArgumentException("length ouf upperBounds must be equal to that of initial");
+                throw new ArgumentException("length of upperBounds must be equal to that of initial");
             }
 
             this.function = function;
@@ -49,12 +51,14 @@ namespace CMAESnet
             tolFun = 1e-4;
 
             cma = new CMA(initial, sigma, bounds);
+
+            ResultValue = double.MaxValue;
         }
 
         public void Optimize()
         {
-            Vector<double> xPrevious = null;
-            double yPrevious = double.MaxValue;
+            Vector<double> xBest = null;
+            double yBest = double.MaxValue;
             bool isConverged = false;
 
             for (int generation = 0; generation < maxIteration; generation++)
@@ -67,25 +71,28 @@ namespace CMAESnet
                     solutions.Add(new Tuple<Vector<double>, double>(x, value));
                 }
                 cma.Tell(solutions);
-                double yBest = solutions.Min(x => x.Item2);
-                Vector<double> xBest = solutions.Where(x => x.Item2 == yBest).FirstOrDefault().Item1;
+                double yCurrentBest = solutions.Min(x => x.Item2);
+                Vector<double> xCurrentBest = solutions.Where(x => x.Item2 == yCurrentBest).FirstOrDefault().Item1;
 
-                if (xPrevious == null || yPrevious == double.MaxValue)
+                if (xBest == null || yBest == double.MaxValue)
                 {
                     isConverged = false;
                 }
                 else
                 {
-                    double xDiff = (xPrevious - xBest).L2Norm();
-                    double yDiff = Math.Abs(yPrevious - yBest);
+                    double xDiff = (xBest - xCurrentBest).L2Norm();
+                    double yDiff = Math.Abs(yBest - yCurrentBest);
 
                     isConverged = xDiff < tolX && yDiff < tolFun;
                 }
 
-                xPrevious = yBest < yPrevious ? xBest : xPrevious;
-                yPrevious = yBest < yPrevious ? yBest : yPrevious;
+                xBest = yCurrentBest < yBest ? xCurrentBest : xBest;
+                yBest = yCurrentBest < yBest ? yCurrentBest : yBest;
 
-                if (isConverged) { break; }
+                if (isConverged)
+                {
+                    break;
+                }
             }
 
             if (!isConverged)
@@ -93,8 +100,8 @@ namespace CMAESnet
                 Console.WriteLine("Reached max iteration.");
             }
 
-            ResultVector = xPrevious;
-            ResultValue = yPrevious;
+            ResultVector = xBest;
+            ResultValue = yBest;
         }
     }
 }

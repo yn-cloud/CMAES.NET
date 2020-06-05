@@ -10,9 +10,9 @@ namespace CMAESnet.Example
         static void Main(string[] args)
         {
             double[] initial = new double[] { 2, 3 };
-            CMAESOptimizer cmaoptimizer = new CMAESOptimizer(TestFunctions, initial, 1.5);
+            CMAESOptimizer cmaoptimizer = new CMAESOptimizer(TestFunctions, initial, 1.5, 3221);
 
-            cmaoptimizer.Optimize(true);
+            cmaoptimizer.Optimize();
 
             Console.WriteLine(cmaoptimizer.ResultVector);
             Console.WriteLine(cmaoptimizer.ResultValue);
