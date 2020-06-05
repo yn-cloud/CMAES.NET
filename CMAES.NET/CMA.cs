@@ -1,10 +1,10 @@
-﻿using MathNet.Numerics.Distributions;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Random;
-using System;
-using System.Numerics;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+
+using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Random;
 
 namespace CMAESnet
 {
@@ -37,7 +37,7 @@ namespace CMAESnet
         public int Generation { get; private set; }
         public object Dpow { get; private set; }
 
-        public CMA(Vector<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 0)
+        public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 114514)
         {
             if (!(sigma > 0))
             {
@@ -123,7 +123,7 @@ namespace CMAESnet
             _p_sigma = Vector<double>.Build.Dense(Dim, 0);
             _pc = Vector<double>.Build.Dense(Dim, 0);
 
-            _mean = mean;
+            _mean = Vector<double>.Build.DenseOfArray(mean.ToArray());
             _C = Matrix<double>.Build.DenseIdentity(Dim, Dim);
             _sigma = sigma;
 
