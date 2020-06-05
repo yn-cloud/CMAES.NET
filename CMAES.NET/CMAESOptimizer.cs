@@ -83,7 +83,7 @@ namespace CMAESnet
                     double xDiff = (xBest - xCurrentBest).L2Norm();
                     double yDiff = Math.Abs(yBest - yCurrentBest);
 
-                    isConverged = xDiff < tolX && yDiff < tolFun;
+                    isConverged = xDiff < tolX && yDiff < tolFun && cma.IsConverged();
                 }
 
                 xBest = yCurrentBest < yBest ? xCurrentBest : xBest;

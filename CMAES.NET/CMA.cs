@@ -140,6 +140,11 @@ namespace CMAESnet
             _epsilon = 1e-8;
         }
 
+        internal bool IsConverged()
+        {
+            return _sigma < 1e-4;
+        }
+
         public void SetBounds(Matrix<double> bounds = null)
         {
             if (!(bounds == null || (bounds.RowCount == Dim && bounds.ColumnCount == 2)))
