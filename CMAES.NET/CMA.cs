@@ -238,7 +238,7 @@ namespace CMAESnet
                 {
                     w_io[i] = _weights[i] * 1;
                 }
-                if (_weights[i] < 0)
+                else
                 {
                     w_io[i] = _weights[i] * Dim / (w_iee[i] + _epsilon);
                 }
