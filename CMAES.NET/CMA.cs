@@ -198,13 +198,13 @@ namespace CMAESnet
             }
 
             // Selection and recombination
-            Vector<double>[] kk = y_k.EnumerateRows().Skip(_mu).ToArray();
+            Vector<double>[] kk = y_k.EnumerateRows().Take(_mu).ToArray();
             Matrix<double> y_k_T = Matrix<double>.Build.Dense(Dim, kk.Length);
             for (int i = 0; i < kk.Length; i++)
             {
                 y_k_T.SetColumn(i, kk[i]);
             }
-            Vector<double> subWeights = Vector<double>.Build.Dense(_weights.Skip(_mu).ToArray());
+            Vector<double> subWeights = Vector<double>.Build.Dense(_weights.Take(_mu).ToArray());
             Matrix<double> y_w_matrix = Matrix<double>.Build.Dense(y_k_T.RowCount, y_k_T.ColumnCount);
             for (int i = 0; i < y_w_matrix.RowCount; i++)
             {
@@ -224,7 +224,6 @@ namespace CMAESnet
 
             double norm_pSigma = _p_sigma.L2Norm();
             _sigma *= Math.Exp(_c_sigma / _d_sigma * ((norm_pSigma / _chi_n) - 1));
-
             double h_sigma_cond_left = norm_pSigma / Math.Sqrt(1 - Math.Pow(1 - _c_sigma, 2 * (Generation + 1)));
             double h_sigma_cond_right = (1.4 + (2 / (double)(Dim + 1))) * _chi_n;
             double h_sigma = h_sigma_cond_left < h_sigma_cond_right ? 1.0 : 0.0;
@@ -244,7 +243,6 @@ namespace CMAESnet
                     w_io[i] = _weights[i] * Dim / (w_iee[i] + _epsilon);
                 }
             }
-
 
             double delta_h_sigma = (1 - h_sigma) * _cc * (2 - _cc);
             if (!(delta_h_sigma <= 1))
@@ -312,7 +310,7 @@ namespace CMAESnet
             Vector<double> z = Vector<double>.Build.Dense(Dim);
             for (int i = 0; i < z.Count; i++)
             {
-                z[i] = 0;// Normal.Sample(_rng, 0, 1);
+                z[i] = Normal.Sample(_rng, 0, 1);
             }
             Matrix<double> Ddiagonal = Matrix<double>.Build.DenseDiagonal(_D.Count, 1);
             for (int i = 0; i < Ddiagonal.RowCount; i++)
