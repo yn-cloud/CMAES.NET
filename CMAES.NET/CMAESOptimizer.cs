@@ -11,8 +11,6 @@ namespace CMAESnet
         private readonly CMA cma;
         private readonly Func<IList<double>, double> function;
         private readonly int maxIteration;
-        private readonly double tolX;
-        private readonly double tolFun;
 
         public Vector<double> ResultVector { get; private set; }
         public double ResultValue { get; private set; }
@@ -21,8 +19,6 @@ namespace CMAESnet
         {
             this.function = function;
             maxIteration = initnial.Count * 200;
-            tolX = 1e-4;
-            tolFun = 1e-4;
 
             cma = new CMA(initnial, sigma, seed: randSeed);
 
@@ -46,9 +42,6 @@ namespace CMAESnet
             Matrix<double> bounds = Matrix<double>.Build.Dense(initial.Count, 2);
             bounds.SetColumn(0, lowerBounds.ToArray());
             bounds.SetColumn(1, upperBounds.ToArray());
-
-            tolX = 1e-4;
-            tolFun = 1e-4;
 
             cma = new CMA(initial, sigma, bounds);
 
@@ -83,7 +76,7 @@ namespace CMAESnet
                     double xDiff = (xBest - xCurrentBest).L2Norm();
                     double yDiff = Math.Abs(yBest - yCurrentBest);
 
-                    isConverged = xDiff < tolX && yDiff < tolFun && cma.IsConverged();
+                    isConverged = cma.IsConverged();
                 }
 
                 xBest = yCurrentBest < yBest ? xCurrentBest : xBest;

@@ -142,7 +142,7 @@ namespace CMAESnet
 
         internal bool IsConverged()
         {
-            return _sigma < 1e-4;
+            return _sigma < 1e-4 && _C.L2Norm() < 1e-4;
         }
 
         public void SetBounds(Matrix<double> bounds = null)
@@ -151,7 +151,7 @@ namespace CMAESnet
             {
                 throw new Exception("bounds should be (n_dim, 2)-dim matrix");
             }
-            this._bounds = bounds;
+            _bounds = bounds;
         }
 
         public Vector<double> Ask()
