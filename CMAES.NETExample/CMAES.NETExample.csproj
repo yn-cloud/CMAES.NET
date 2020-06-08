@@ -9,8 +9,4 @@
     <PackageReference Include="CMAES.NET" Version="1.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CMAES.NET\CMAES.NET.csproj" />
-  </ItemGroup>
-
 </Project>

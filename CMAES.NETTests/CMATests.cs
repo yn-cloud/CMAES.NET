@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CMAESnet.NET;
+using CMAESnet;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace CMAESnet.NET.Tests
+namespace CMAESnet.Tests
 {
     [TestClass()]
     public class CMATests
