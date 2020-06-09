@@ -31,13 +31,15 @@ namespace CMAESnet
         private readonly int _n_max_resampling;
         private readonly Xorshift _rng;
         private readonly double _epsilon;
+        private readonly double _tol_sigma;
+        private readonly double _tol_C;
 
         public int Dim { get; }
         public int PopulationSize { get; private set; }
         public int Generation { get; private set; }
         public object Dpow { get; private set; }
 
-        public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 114514)
+        public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 0, double tol_sigma = 1e-4, double tol_C = 1e-4)
         {
             if (!(sigma > 0))
             {
@@ -138,11 +140,14 @@ namespace CMAESnet
             _rng = new Xorshift(seed);
 
             _epsilon = 1e-8;
+
+            _tol_sigma = tol_sigma;
+            _tol_C = tol_C;
         }
 
-        internal bool IsConverged()
+        public bool IsConverged()
         {
-            return _sigma < 1e-4 && _C.L2Norm() < 1e-4;
+            return _sigma < _tol_sigma && _C.L2Norm() < _tol_C;
         }
 
         public void SetBounds(Matrix<double> bounds = null)
