@@ -37,7 +37,6 @@ namespace CMAESnet
         public int Dim { get; }
         public int PopulationSize { get; private set; }
         public int Generation { get; private set; }
-        public object Dpow { get; private set; }
 
         public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 0, double tol_sigma = 1e-4, double tol_C = 1e-4)
         {
