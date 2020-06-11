@@ -34,8 +34,17 @@ namespace CMAESnet
         private readonly double _tol_sigma;
         private readonly double _tol_C;
 
+        /// <summary>
+        /// A number of dimensions
+        /// </summary>
         public int Dim { get; }
+        /// <summary>
+        /// A population size
+        /// </summary>
         public int PopulationSize { get; private set; }
+        /// <summary>
+        /// Generation number which is monotonically incremented when multi-variate gaussian distribution is updated.
+        /// </summary>
         public int Generation { get; private set; }
 
         /// <summary>
