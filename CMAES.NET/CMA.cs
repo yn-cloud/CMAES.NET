@@ -38,6 +38,17 @@ namespace CMAESnet
         public int PopulationSize { get; private set; }
         public int Generation { get; private set; }
 
+        /// <summary>
+        /// CMA-ES stochastic optimizer class with ask-and-tell interface.
+        /// </summary>
+        /// <param name="mean">Initial mean vector of multi-variate gaussian distributions.</param>
+        /// <param name="sigma">Initial standard deviation of covariance matrix.</param>
+        /// <param name="bounds">(Optional) Lower and upper domain boundaries for each parameter, (n_dim, 2)-dim matrix.</param>
+        /// <param name="nMaxResampling">(Optional) A maximum number of resampling parameters (default: 100).
+        /// If all sampled parameters are infeasible, the last sampled one  will be clipped with lower and upper bounds.</param>
+        /// <param name="seed">(Optional) A seed number.</param>
+        /// <param name="tol_sigma">(Optional) Threshold for determining the convergence of sigma.</param>
+        /// <param name="tol_C">(Optional) Threshold for determining the convergence of Covariance matrix.</param>
         public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 0, double tol_sigma = 1e-4, double tol_C = 1e-4)
         {
             if (!(sigma > 0))
