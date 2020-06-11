@@ -1,2 +1,2 @@
-- name: Publish NuGet
-  uses: brandedoutcast/publish-nuget@v2.5.2
+name: Publish NuGet
+uses: brandedoutcast/publish-nuget@v2.5.2
