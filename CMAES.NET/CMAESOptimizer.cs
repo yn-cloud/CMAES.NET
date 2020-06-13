@@ -12,10 +12,23 @@ namespace CMAESnet
         private readonly Func<IList<double>, double> function;
         private readonly int maxIteration;
 
-        public Vector<double> ResultVector { get; private set; }
+        /// <summary>
+        /// Array of optimization results
+        /// </summary>
+        public double[] ResultVector { get; private set; }
+        /// <summary>
+        /// The result of assigning the optimization result array to the target function
+        /// </summary>
         public double ResultValue { get; private set; }
 
-        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initnial, double sigma, int randSeed = 0)
+        /// <summary>
+        /// An Optimization Solver Using CMA-ES
+        /// </summary>
+        /// <param name="function">Objective function</param>
+        /// <param name="initnial">initial values</param>
+        /// <param name="sigma">(Optional) Step size of CMA-ES</param>
+        /// <param name="randSeed">(Optional) A seed number</param>
+        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initnial, double sigma = 1, int randSeed = 0)
         {
             this.function = function;
             maxIteration = initnial.Count * 200;
@@ -93,7 +106,7 @@ namespace CMAESnet
                 Console.WriteLine("Reached max iteration.");
             }
 
-            ResultVector = xBest;
+            ResultVector = xBest.ToArray();
             ResultValue = yBest;
         }
     }
