@@ -6,11 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\CMAES.NET\CMAES.NET.csproj" />
+    <PackageReference Include="CMAES.NET" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

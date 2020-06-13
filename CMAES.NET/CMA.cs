@@ -31,13 +31,34 @@ namespace CMAESnet
         private readonly int _n_max_resampling;
         private readonly Xorshift _rng;
         private readonly double _epsilon;
+        private readonly double _tol_sigma;
+        private readonly double _tol_C;
 
+        /// <summary>
+        /// A number of dimensions
+        /// </summary>
         public int Dim { get; }
+        /// <summary>
+        /// A population size
+        /// </summary>
         public int PopulationSize { get; private set; }
+        /// <summary>
+        /// Generation number which is monotonically incremented when multi-variate gaussian distribution is updated.
+        /// </summary>
         public int Generation { get; private set; }
-        public object Dpow { get; private set; }
 
-        public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 114514)
+        /// <summary>
+        /// CMA-ES stochastic optimizer class with ask-and-tell interface.
+        /// </summary>
+        /// <param name="mean">Initial mean vector of multi-variate gaussian distributions.</param>
+        /// <param name="sigma">Initial standard deviation of covariance matrix.</param>
+        /// <param name="bounds">(Optional) Lower and upper domain boundaries for each parameter, (n_dim, 2)-dim matrix.</param>
+        /// <param name="nMaxResampling">(Optional) A maximum number of resampling parameters (default: 100).
+        /// If all sampled parameters are infeasible, the last sampled one  will be clipped with lower and upper bounds.</param>
+        /// <param name="seed">(Optional) A seed number.</param>
+        /// <param name="tol_sigma">(Optional) Threshold for determining the convergence of sigma.</param>
+        /// <param name="tol_C">(Optional) Threshold for determining the convergence of Covariance matrix.</param>
+        public CMA(IList<double> mean, double sigma, Matrix<double> bounds = null, int nMaxResampling = 100, int seed = 0, double tol_sigma = 1e-4, double tol_C = 1e-4)
         {
             if (!(sigma > 0))
             {
@@ -138,11 +159,18 @@ namespace CMAESnet
             _rng = new Xorshift(seed);
 
             _epsilon = 1e-8;
+
+            _tol_sigma = tol_sigma;
+            _tol_C = tol_C;
         }
 
-        internal bool IsConverged()
+        /// <summary>
+        /// Check if the covariance matrix and step size are below the threshold.
+        /// </summary>
+        /// <returns>Whether the step size of the covariance matrix is converged or not.</returns>
+        public bool IsConverged()
         {
-            return _sigma < 1e-4 && _C.L2Norm() < 1e-4;
+            return _sigma < _tol_sigma && _C.L2Norm() < _tol_C;
         }
 
         public void SetBounds(Matrix<double> bounds = null)
@@ -154,6 +182,10 @@ namespace CMAESnet
             _bounds = bounds;
         }
 
+        /// <summary>
+        /// Returns the next search vector based on the current covariance matrix.
+        /// </summary>
+        /// <returns>The next search vector.</returns>
         public Vector<double> Ask()
         {
             for (int i = 0; i < _n_max_resampling; i++)
@@ -167,6 +199,10 @@ namespace CMAESnet
             return xNew;
         }
 
+        /// <summary>
+        /// The covariance matrix and step size are recalculated based on the search vectors and their results.
+        /// </summary>
+        /// <param name="solutions">Tuple's list of search vectors and result values.</param>
         public void Tell(List<Tuple<Vector<double>, double>> solutions)
         {
             if (solutions.Count != PopulationSize)
