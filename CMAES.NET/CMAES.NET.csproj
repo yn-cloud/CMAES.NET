@@ -14,6 +14,7 @@
     <Copyright />
     <PackageProjectUrl>https://github.com/yn-cloud/CMAES.NET</PackageProjectUrl>
     <Description>Covariance Matrix Adaptation Evolution Strategy (CMA-ES) implementation on .NET</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
