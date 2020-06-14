@@ -1,18 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>CMAESnet</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>yn-cloud</Authors>
     <Company />
     <Product />
     <RepositoryUrl>https://github.com/yn-cloud/CMAES.NET</RepositoryUrl>
-    <PackageTags>CMA-ES</PackageTags>
+    <PackageTags>CMA-ES Optimization Black-box-optimization</PackageTags>
     <Copyright />
     <PackageProjectUrl>https://github.com/yn-cloud/CMAES.NET</PackageProjectUrl>
+    <Description>Covariance Matrix Adaptation Evolution Strategy (CMA-ES) implementation on .NET</Description>
   </PropertyGroup>
 
   <ItemGroup>
