@@ -59,7 +59,7 @@ namespace CMAESnet
             }
 
             this.function = function;
-            maxIteration = initial.Count;
+            maxIteration = initial.Count * 200;
 
             Matrix<double> bounds = Matrix<double>.Build.Dense(initial.Count, 2);
             bounds.SetColumn(0, lowerBounds.ToArray());
