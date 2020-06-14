@@ -24,11 +24,11 @@ namespace CMAESnet
         /// <summary>
         /// An Optimization Solver Using CMA-ES
         /// </summary>
-        /// <param name="function">Objective function</param>
-        /// <param name="initnial">initial values</param>
-        /// <param name="sigma">(Optional) Step size of CMA-ES</param>
-        /// <param name="randSeed">(Optional) A seed number</param>
-        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initnial, double sigma = 1, int randSeed = 0)
+        /// <param name="function">Objective function.</param>
+        /// <param name="initnial">Initial values.</param>
+        /// <param name="sigma">Step size of CMA-ES.</param>
+        /// <param name="randSeed">(Optional) A seed number.</param>
+        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initnial, double sigma, int randSeed = 0)
         {
             this.function = function;
             maxIteration = initnial.Count * 200;
@@ -38,15 +38,24 @@ namespace CMAESnet
             ResultValue = double.MaxValue;
         }
 
-        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initial, double sigma, IList<double> lowerBounds, IList<double> upperBounds)
+        /// <summary>
+        /// An Optimization Solver Using CMA-ES
+        /// </summary>
+        /// <param name="function">Objective function.</param>
+        /// <param name="initial">Initial values.</param>
+        /// <param name="sigma">Step size of CMA-ES.</param>
+        /// <param name="lowerBounds">Lower limit of the optimized search range.</param>
+        /// <param name="upperBounds">Upper limit of the optimized search range.</param>
+        /// <param name="randSeed">(Optional) A seed number.</param>
+        public CMAESOptimizer(Func<IList<double>, double> function, IList<double> initial, double sigma, IList<double> lowerBounds, IList<double> upperBounds, int randSeed = 0)
         {
             if (initial.Count != lowerBounds.Count)
             {
-                throw new ArgumentException("length of lowerBounds must be equal to that of initial.");
+                throw new ArgumentException("Length of lowerBounds must be equal to that of initial.");
             }
             if (initial.Count != upperBounds.Count)
             {
-                throw new ArgumentException("length of upperBounds must be equal to that of initial");
+                throw new ArgumentException("Length of upperBounds must be equal to that of initial");
             }
 
             this.function = function;
@@ -56,11 +65,14 @@ namespace CMAESnet
             bounds.SetColumn(0, lowerBounds.ToArray());
             bounds.SetColumn(1, upperBounds.ToArray());
 
-            cma = new CMA(initial, sigma, bounds);
+            cma = new CMA(initial, sigma, bounds, seed: randSeed);
 
             ResultValue = double.MaxValue;
         }
 
+        /// <summary>
+        /// Perform optimization calculations with CMA-ES.
+        /// </summary>
         public void Optimize()
         {
             Vector<double> xBest = null;
@@ -76,6 +88,7 @@ namespace CMAESnet
                     double value = function(x);
                     solutions.Add(new Tuple<Vector<double>, double>(x, value));
                 }
+
                 cma.Tell(solutions);
                 double yCurrentBest = solutions.Min(x => x.Item2);
                 Vector<double> xCurrentBest = solutions.Where(x => x.Item2 == yCurrentBest).FirstOrDefault().Item1;
