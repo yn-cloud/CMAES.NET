@@ -37,6 +37,11 @@ namespace CMAESnetExample
 }
 ```
 
+## Requirements
+
+* .Net Standard 2.0 or higher
+* Math.Net Numerics 4.11.0 or higher
+
 ## Link
 
 ### Other libraries
