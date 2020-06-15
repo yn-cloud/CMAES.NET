@@ -9,13 +9,14 @@ namespace CMAESnetExample
     {
         static void Main(string[] args)
         {
-            double[] initial = new double[] { 2, 3 };
+            double[] initial = new double[] { 0, 0 };
             CMAESOptimizer cmaoptimizer = new CMAESOptimizer(TestFunctions, initial, 1.5);
 
             cmaoptimizer.Optimize();
 
-            Console.WriteLine(cmaoptimizer.ResultVector);
-            Console.WriteLine(cmaoptimizer.ResultValue);
+            double[] optimizedArray = cmaoptimizer.ResultVector;
+
+            Console.WriteLine("x1={0}, x2={1}", optimizedArray[0], optimizedArray[1]);
         }
 
         private static double TestFunctions(IList<double> x)
