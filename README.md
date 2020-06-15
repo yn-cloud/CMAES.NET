@@ -25,8 +25,9 @@ namespace CMAESnetExample
 
             cmaoptimizer.Optimize();
 
-            Console.WriteLine(cmaoptimizer.ResultVector);
-            Console.WriteLine(cmaoptimizer.ResultValue);
+            double[] optimizedArray = cmaoptimizer.ResultVector;
+
+            Console.WriteLine("x1={0}, x2={1}", optimizedArray[0], optimizedArray[1]);
         }
 
         private static double TestFunctions(IList<double> x)
