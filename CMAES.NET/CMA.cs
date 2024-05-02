@@ -221,7 +221,7 @@ namespace CMAESnet
                 _C = (_C + _C.Transpose()) / 2;
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evd_C = _C.Evd();
                 B = evd_C.EigenVectors;
-                D = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
+                D = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real <= 0 ? _epsilon : tmp.Real).ToArray());
             }
             else
             {
@@ -260,7 +260,7 @@ namespace CMAESnet
             {
                 D_bunno1_diagMatrix[i, i] = D_bunno1_diag[i];
             }
-            Matrix<double> C_2 = B * D_bunno1_diagMatrix * B;
+            Matrix<double> C_2 = B * D_bunno1_diagMatrix * B.Transpose();
             _p_sigma = ((1 - _c_sigma) * _p_sigma) + (Math.Sqrt(_c_sigma * (2 - _c_sigma) * _mu_eff) * C_2 * y_w);
 
             double norm_pSigma = _p_sigma.L2Norm();
@@ -334,8 +334,7 @@ namespace CMAESnet
                 _C = (_C + _C.Transpose()) / 2;
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> evd_C = _C.Evd();
                 Matrix<double> B = evd_C.EigenVectors;
-                Vector<double> D = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real).ToArray());
-                D += _epsilon;
+                Vector<double> D = Vector<double>.Build.Dense(evd_C.EigenValues.PointwiseSqrt().Select(tmp => tmp.Real <= 0 ? _epsilon : tmp.Real).ToArray());
                 _B = B;
                 _D = D;
                 Matrix<double> D2diagonal = Matrix<double>.Build.DenseDiagonal(D.Count, 1);
